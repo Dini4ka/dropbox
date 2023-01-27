@@ -4,16 +4,16 @@ import undetected_chromedriver.v2 as uc
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 
+from trash import get_auth_token
+
 app_key = "p3kpv209f0w81mq"
 app_secret = "mqlefiuagbszfh9"
 
 # build the authorization URL:
-authorization_url = "https://www.dropbox.com/oauth2/authorize?client_id=%s&response_type=code" % app_key
+authorization_url = "https://www.dropbox.com/oauth2/authorize?client_id=p3kpv209f0w81mq&response_type=code"
 
-# send the user to the authorization URL:
-print('Go to the following URL and allow access:')
-print(authorization_url)
-authorization_code = 'QmPT8i3XN9gAAAAAAAAAE09fC0I_5NxUufsolH50oFw'
+authorization_code = get_auth_token()
+print(authorization_code)
 
 # exchange the authorization code for an access token:
 token_url = "https://api.dropboxapi.com/oauth2/token"
