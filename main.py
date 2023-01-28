@@ -13,7 +13,6 @@ app_secret = "mqlefiuagbszfh9"
 authorization_url = "https://www.dropbox.com/oauth2/authorize?client_id=p3kpv209f0w81mq&response_type=code"
 
 authorization_code = get_auth_token()
-print(authorization_code)
 
 # exchange the authorization code for an access token:
 token_url = "https://api.dropboxapi.com/oauth2/token"
@@ -24,4 +23,18 @@ params = {
     "client_secret": app_secret
 }
 r = requests.post(token_url, data=params)
-print(r.text)
+access_token = r.json()['access_token']
+
+
+def upload_file(token, src_path,dst_path):
+    url = "https://content.dropboxapi.com/2/files/upload"
+
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/octet-stream",
+        "Dropbox-API-Arg": "{\"path\":\"/test/file.txt\"}"
+    }
+
+    data = open(src_path, "rb").read()
+
+    r = requests.post(url, headers=headers, data=data)
