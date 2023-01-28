@@ -26,15 +26,33 @@ r = requests.post(token_url, data=params)
 access_token = r.json()['access_token']
 
 
-def upload_file(token, src_path,dst_path):
+def upload_file(token, src_path, dst_path):
     url = "https://content.dropboxapi.com/2/files/upload"
 
     headers = {
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/octet-stream",
-        "Dropbox-API-Arg": "{\"path\":\"/test/file.txt\"}"
+        "Dropbox-API-Arg": "{\"path\":\"%s\"}" % dst_path,
     }
 
     data = open(src_path, "rb").read()
 
     r = requests.post(url, headers=headers, data=data)
+    print(r.content)
+
+
+def download_file(token, src_path, dst_path):
+    url = "https://content.dropboxapi.com/2/files/download"
+
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Dropbox-API-Arg": "{\"path\":\"%s\"}" % dst_path,
+    }
+
+    r = requests.post(url, headers=headers)
+    print(r.status_code)
+    with open(src_path,'wb') as f:
+        f.write(r.content)
+
+
+download_file(access_token, 'download/new_file', '/test/test.sql')
