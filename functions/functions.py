@@ -18,32 +18,41 @@ class DropboxApp:
 
     def get_authorization_code(self):
         opts = Options()
-        # opts.add_argument("--headless")
-        # opts.add_argument('--proxy-server=45.89.18.231:14600@JHFOgi:G4h0DZqcXu')
+        opts.add_argument("--headless")
         driver = uc.Chrome(options=opts)
         while True:
             print('getting Token...')
             try:
+
+                # Getting page for authing
                 driver.get('https://www.dropbox.com/oauth2/authorize?client_id=p3kpv209f0w81mq&response_type=code')
                 time.sleep(10)
                 print('authorization with login and password...')
                 driver.find_element(By.NAME, 'login_email').send_keys(self.login)
                 driver.find_element(By.NAME, 'login_password').send_keys(self.password)
                 driver.find_element(By.CLASS_NAME, 'signin-text').click()
+
+                # Checking the correctness of the login and password
                 time.sleep(20)
                 try:
                     driver.find_element(By.CLASS_NAME, 'error-message')
                     sys.exit('Wrong login or password')
                 except Exception:
                     pass
+
+                # We agree to all conditions and accept all threats
                 driver.find_elements(By.CLASS_NAME, 'dig-Button-content')[1].click()
                 time.sleep(10)
                 driver.find_elements(By.CLASS_NAME, 'dig-Button-content')[1].click()
                 time.sleep(10)
+
+                # Getting token
                 auth_code = driver.find_element(By.CLASS_NAME, 'auth-box')
                 code = auth_code.get_attribute('value')
                 print('Success!!')
                 break
+
+            # sometimes on some pages it is not displayed completely
             except Exception as ex:
                 print('Error! Trying again')
             finally:
@@ -94,11 +103,15 @@ class DropboxApp:
         r = requests.post(web_link, headers=headers)
         if r.status_code == 400:
             sys.exit(f'Wrong format dropbox path: {dst_path}')
+
+        # If the page is not found, then a json file always comes
         try:
             result = json.loads(r.content.decode('utf-8'))
             sys.exit(f'Cant find directory: {dst_path}')
         except Exception:
             pass
+
+        # If there are any problems with finding the file
         try:
             with open(src_path, 'wb') as f:
                 f.write(r.content)
