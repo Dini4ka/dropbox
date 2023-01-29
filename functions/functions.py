@@ -1,3 +1,5 @@
+import sys
+import json
 import undetected_chromedriver.v2 as uc
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
@@ -16,7 +18,8 @@ class DropboxApp:
 
     def get_authorization_code(self):
         opts = Options()
-        opts.add_argument("--headless")
+        # opts.add_argument("--headless")
+        # opts.add_argument('--proxy-server=45.89.18.231:14600@JHFOgi:G4h0DZqcXu')
         driver = uc.Chrome(options=opts)
         while True:
             print('getting Token...')
@@ -27,8 +30,13 @@ class DropboxApp:
                 driver.find_element(By.NAME, 'login_email').send_keys(self.login)
                 driver.find_element(By.NAME, 'login_password').send_keys(self.password)
                 driver.find_element(By.CLASS_NAME, 'signin-text').click()
-                time.sleep(10)
-                driver.find_element(By.ID, 'warning-button-continue').click()
+                time.sleep(20)
+                try:
+                    driver.find_element(By.CLASS_NAME, 'error-message')
+                    sys.exit('Wrong login or password')
+                except Exception:
+                    pass
+                driver.find_elements(By.CLASS_NAME, 'dig-Button-content')[1].click()
                 time.sleep(10)
                 driver.find_elements(By.CLASS_NAME, 'dig-Button-content')[1].click()
                 time.sleep(10)
@@ -36,7 +44,7 @@ class DropboxApp:
                 code = auth_code.get_attribute('value')
                 print('Success!!')
                 break
-            except Exception:
+            except Exception as ex:
                 print('Error! Trying again')
             finally:
                 pass
@@ -60,25 +68,40 @@ class DropboxApp:
         web_link = "https://content.dropboxapi.com/2/files/upload"
 
         headers = {
-            "Authorization": f"Bearer {self.access_token}",
+            "Authorization": f"Bearer {self.authorization_code}",
             "Content-Type": "application/octet-stream",
             "Dropbox-API-Arg": "{\"path\":\"%s\"}" % dst_path,
         }
-
-        data = open(src_path, "rb").read()
+        try:
+            data = open(src_path, "rb").read()
+        except FileNotFoundError:
+            sys.exit(f'No such file or directory: {src_path}')
 
         r = requests.post(web_link, headers=headers, data=data)
-        print(r.content)
+        if r.status_code == 400:
+            sys.exit(f'Wrong format dropbox path: {dst_path}')
+        elif r.status_code == 200:
+            print(f'Success upload file {src_path}')
 
     def download_file(self, src_path, dst_path):
         web_link = "https://content.dropboxapi.com/2/files/download"
 
         headers = {
-            "Authorization": f"Bearer {self.access_token}",
+            "Authorization": f"Bearer {self.authorization_code}",
             "Dropbox-API-Arg": "{\"path\":\"%s\"}" % dst_path,
         }
 
         r = requests.post(web_link, headers=headers)
-        print(r.status_code)
-        with open(src_path, 'wb') as f:
-            f.write(r.content)
+        if r.status_code == 400:
+            sys.exit(f'Wrong format dropbox path: {dst_path}')
+        try:
+            result = json.loads(r.content.decode('utf-8'))
+            sys.exit(f'Cant find directory: {dst_path}')
+        except Exception:
+            pass
+        try:
+            with open(src_path, 'wb') as f:
+                f.write(r.content)
+        except Exception:
+            sys.exit(f'wrong path for: {src_path}')
+        print(f'file  {dst_path} was successfully downloaded to {src_path}')
