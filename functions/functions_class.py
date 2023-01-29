@@ -77,7 +77,7 @@ class DropboxApp:
         web_link = "https://content.dropboxapi.com/2/files/upload"
 
         headers = {
-            "Authorization": f"Bearer {self.authorization_code}",
+            "Authorization": f"Bearer {self.access_token}",
             "Content-Type": "application/octet-stream",
             "Dropbox-API-Arg": "{\"path\":\"%s\"}" % dst_path,
         }
@@ -96,7 +96,7 @@ class DropboxApp:
         web_link = "https://content.dropboxapi.com/2/files/download"
 
         headers = {
-            "Authorization": f"Bearer {self.authorization_code}",
+            "Authorization": f"Bearer {self.access_token}",
             "Dropbox-API-Arg": "{\"path\":\"%s\"}" % dst_path,
         }
 
