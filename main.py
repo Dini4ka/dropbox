@@ -13,12 +13,12 @@ def main(login, password, action, src_path, dst_path):
         test = DropboxApp(login=login, password=password)
         test.get_authorization_code()
         test.get_access_token()
-        test.upload_file(src_path=src_path, dst_path=dst_path)
+        test.upload_file(src_path=str(src_path), dst_path=str(dst_path))
     elif action == 'get':
-        test = DropboxApp(login='Pasha71265@yandex.ru', password='Denis_71265')
+        test = DropboxApp(login=login, password=password)
         test.get_authorization_code()
         test.get_access_token()
-        test.download_file(src_path=src_path, dst_path=dst_path)
+        test.download_file(src_path=str(src_path), dst_path=str(dst_path))
 
 
 if __name__ == "__main__":

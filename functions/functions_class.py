@@ -104,9 +104,10 @@ class DropboxApp:
         if r.status_code == 400:
             sys.exit(f'Wrong format dropbox path: {dst_path}')
 
-        # If the page is not found, then a json file always comes
+        # If the file is not found, then a json file always comes
         try:
             result = json.loads(r.content.decode('utf-8'))
+            print(result)
             sys.exit(f'Cant find directory: {dst_path}')
         except Exception:
             pass
